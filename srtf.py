@@ -1,25 +1,12 @@
-import plotly.figure_factory as px
-import pandas as pd
-from models.process import process
+from models.model import process , visualize , get_input
 # Creating a process object
 total_time = 0
 
-
-def get_input():
-    number = int(input(' please enter the number of processes'))
-    processes = []
-    for i in range(number):
-        name = f'process{i}'.format()
-        arrival = int(input(f'please enter Arrival time for {name}: '.format()))
-        burst = int(input(f'please enter Burst time for {name}: '.format()))
-        process1 = process(name=name,arrival= arrival,burst= burst)
-        processes.append(process1)
-        total_time += burst 
-    return processes
-def scheduler(processes):
+def scheduler(processes,total_time):
     ready_queue = []
     old  = 0
     plotter = []
+
     for i in range(1,total_time+1):
         #sorting the queue so that the shortest remaining time left gets on top and  removes any finished processes
         ready_queue = [ j for j in processes if j.arrival_time <= i]
@@ -33,25 +20,18 @@ def scheduler(processes):
 
                 plotter.append([old.name,old.arrival_time,i,])
                 ready_queue1[0].arrival_time = i
+        
             if i==total_time:
                 
                 plotter.append([ready_queue1[0].name,ready_queue1[0].arrival_time,i])
 
             old = ready_queue1[0]
-        return plotter
-def visualize(plotter):
-    df = pd.DataFrame([
-        dict(Task=x,Start=y,Finish=z) for [x,y,z] in plotter 
-    ])
 
-    fig = px.create_gantt(df)
-    fig.update_xaxes(type='linear')
-    fig.update_yaxes(autorange="reversed") # otherwise tasks are listed from the bottom up
-    fig.show()
-    print(df)
+    return plotter
 
-processes = get_input()
-plotter = scheduler(processes)
+
+processes ,total_time= get_input()
+plotter = scheduler(processes,total_time)
 visualize(plotter)
 
         
